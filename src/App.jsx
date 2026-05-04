@@ -1,338 +1,675 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Calendar, ArrowRight, X } from 'lucide-react';
+import { useState, useMemo } from "react";
 
-export default function App() {
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedBlog, setSelectedBlog] = useState(null);
-
-  // Sample blog data
-  const blogs = [
-    {
-      id: 1,
-      title: 'The Art of Minimalist Design',
-      excerpt: 'Exploring how less can truly be more in modern web design.',
-      content: 'Minimalist design is a powerful philosophy that has transformed modern web design. By embracing simplicity, we create interfaces that are not only beautiful but also highly functional. In this comprehensive guide, we explore the core principles of minimalism and how to apply them effectively in your projects.\n\nMinimalism in design is about removing unnecessary elements while maintaining clarity and purpose. Every component, every color, and every space must serve a specific function. This approach leads to faster load times, improved accessibility, and a better user experience overall.\n\nKey principles include:\n\n• Embrace white space: Don\'t fill every pixel. Let your content breathe.\n• Limited color palette: Use 2-3 primary colors with strategic accents.\n• Typography matters: Strong typography can carry the entire design.\n• Purpose-driven elements: Every visual element must have a reason to exist.\n\nWhen implemented correctly, minimalist design creates an elegant, timeless aesthetic that appeals to users across demographics. It\'s not about having nothing; it\'s about having exactly what\'s needed—nothing more, nothing less.',
-      author: 'Sarah Chen',
-      date: '2024-04-15',
-      tags: ['design', 'minimalism', 'web'],
-      image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop',
-      readTime: 5,
-    },
-    {
-      id: 2,
-      title: 'React Hooks: A Complete Guide',
-      excerpt: 'Master the fundamentals of React Hooks and write cleaner component logic.',
-      content: 'React Hooks have revolutionized how we write React components. Introduced in React 16.8, Hooks allow you to use state and other React features without writing class components. This guide will walk you through the most important hooks and how to use them effectively.\n\nHooks are JavaScript functions that let you "hook into" React features. They make your code more modular and reusable. The two most important hooks are useState and useEffect.\n\nuseState allows you to add state to functional components. Instead of managing state in a class component, you can now manage it directly in your function:\n\nconst [count, setCount] = useState(0);\n\nuseEffect lets you perform side effects in functional components. It replaces the lifecycle methods from class components:\n\nuseEffect(() => {\n  document.title = `Count: ${count}`;\n}, [count]);\n\nOther essential hooks include:\n• useContext: Access context values\n• useReducer: Complex state logic\n• useCallback: Memoize callback functions\n• useMemo: Optimize performance\n• useRef: Access DOM directly\n\nMastering these hooks will make you a more effective React developer and lead to cleaner, more maintainable code.',
-      author: 'Alex Rodriguez',
-      date: '2024-04-12',
-      tags: ['react', 'javascript', 'tutorial'],
-      image: 'https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=600&h=400&fit=crop',
-      readTime: 8,
-    },
-    {
-      id: 3,
-      title: 'The Future of AI and Creativity',
-      excerpt: 'How artificial intelligence is reshaping creative industries.',
-      content: 'Artificial Intelligence is no longer just a buzzword—it\'s actively reshaping creative industries across the globe. From graphic design to music composition, from copywriting to visual art, AI tools are becoming indispensable allies for creative professionals.\n\nThe integration of AI in creative workflows has democratized access to professional-grade tools. What once required years of training can now be assisted by intelligent algorithms that learn from vast datasets of human creativity.\n\nKey areas of transformation:\n\n• Visual Design: AI can generate mockups, suggest layouts, and optimize color schemes based on best practices.\n• Content Creation: AI writing assistants help brainstorm ideas, optimize copy, and maintain consistency in voice and tone.\n• Music Production: AI tools can generate backgrounds, suggest chord progressions, and assist in arrangement.\n• Animation: Tools are emerging that can assist in frame generation and motion prediction.\n\nHowever, this technological shift raises important questions about authenticity, creativity rights, and the role of human creativity in an AI-augmented world. The future of creativity likely isn\'t about humans versus AI, but rather about how humans and AI can collaborate to produce extraordinary work that neither could achieve alone.',
-      author: 'Jordan Mitchell',
-      date: '2024-04-10',
-      tags: ['ai', 'creativity', 'technology'],
-      image: 'https://images.unsplash.com/photo-1677442d019cecf8cd6b4d17a218616d0cd225b4?w=600&h=400&fit=crop',
-      readTime: 6,
-    },
-    {
-      id: 4,
-      title: 'Building Scalable Node.js Applications',
-      excerpt: 'Best practices for creating performant backend systems.',
-      content: 'Node.js has become a favorite choice for building scalable backend systems. Its non-blocking, event-driven architecture makes it ideal for I/O-intensive applications. However, scaling Node.js applications requires careful planning and adherence to best practices.\n\nScalability in Node.js starts with understanding the event loop. Since Node.js runs on a single thread, blocking operations can bottleneck your entire application. Always use asynchronous operations and avoid synchronous calls in production code.\n\nEssential practices for scalable Node.js apps:\n\n• Use clustering: The cluster module allows you to spawn multiple processes.\n• Implement caching: Redis can dramatically improve performance.\n• Database optimization: Use connection pooling and optimize queries.\n• Load balancing: Distribute traffic across multiple instances.\n• Monitoring: Use tools like New Relic or DataDog to track performance.\n• Async/await patterns: Keep your code clean and maintainable.\n\nArchitectural considerations:\n\n• Microservices: Break large applications into smaller, independent services.\n• Message queues: Use RabbitMQ or Kafka for asynchronous processing.\n• CDN: Serve static assets from a content delivery network.\n• Database sharding: Distribute data across multiple databases.\n\nWith these practices in place, Node.js can handle thousands of concurrent connections, making it perfect for modern web applications.',
-      author: 'Emma Watson',
-      date: '2024-04-08',
-      tags: ['nodejs', 'backend', 'javascript'],
-      image: 'https://images.unsplash.com/photo-1517694712202-14819c9cb5a6?w=600&h=400&fit=crop',
-      readTime: 10,
-    },
-    {
-      id: 5,
-      title: 'UI/UX Trends for 2024',
-      excerpt: 'What\'s trending in user interface and experience design this year.',
-      content: 'As we progress through 2024, several design trends have emerged that are shaping the way we build digital interfaces. Staying current with these trends helps ensure your applications feel modern and meet user expectations.\n\nMajor trends defining 2024:\n\n• Dark mode dominance: Users are embracing dark interfaces for better accessibility and reduced eye strain.\n• Micro-interactions: Subtle animations and feedback enhance user engagement without feeling intrusive.\n• AI-powered personalization: Interfaces that adapt to individual user behaviors and preferences.\n• Glassmorphism: Frosted glass effects add depth and visual hierarchy.\n• Bold typography: Large, expressive type is being used as a primary design element.\n• 3D elements: WebGL and Canvas are enabling richer 3D experiences.\n• Accessible by default: Inclusive design is no longer optional—it\'s expected.\n\nMobile-first design remains paramount, with responsive design now extending to large screens with creative layouts that take advantage of the extra space.\n\nThe psychology of design continues to influence trends. Users expect faster interactions, clearer feedback, and more intuitive navigation. Empty states are opportunities to delight users, not just placeholders for missing content.\n\nThe intersection of aesthetics and function defines modern design. The best interfaces balance visual appeal with usability, ensuring that beautiful design serves the user\'s needs.',
-      author: 'Lisa Park',
-      date: '2024-04-05',
-      tags: ['design', 'ux', 'trends'],
-      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop',
-      readTime: 7,
-    },
-    {
-      id: 6,
-      title: 'Mastering CSS Grid Layout',
-      excerpt: 'Learn advanced CSS Grid techniques for responsive web design.',
-      content: 'CSS Grid is a powerful layout system that has fundamentally changed how we approach responsive web design. Unlike Flexbox, which is one-dimensional, Grid excels at two-dimensional layouts, making it perfect for complex page structures.\n\nBasic Grid Concepts:\n\n• Grid container: The element with display: grid\n• Grid items: Direct children of the grid container\n• Grid tracks: The columns and rows defined by grid-template-columns and grid-template-rows\n• Grid lines: The dividing lines between tracks\n• Grid cells: The space between four grid lines\n\nAdvanced techniques:\n\n• Auto-placement: Grid intelligently places items without explicit positioning.\n• Responsive grids: Use auto-fit and minmax() for fluid layouts.\n• Named grid lines: Give grid lines meaningful names for cleaner code.\n• Implicit vs explicit grids: Understand when grid creates implicit tracks.\n• Grid overlapping: Layer items for creative layouts.\n• Subgrid: Create grids within grid items that respect parent grid structure.\n\nPractical examples:\n\n• Masonry layouts: Create Pinterest-style grids with varying heights.\n• Card layouts: Organize content in elegant card-based designs.\n• Complex dashboards: Build sophisticated data visualization layouts.\n\nCSS Grid is widely supported in modern browsers, making it safe to use in production. Combined with Flexbox, it gives you the tools needed to create any layout you can imagine.',
-      author: 'David Lee',
-      date: '2024-04-01',
-      tags: ['css', 'web', 'tutorial'],
-      image: 'https://images.unsplash.com/photo-1633356915991-b40a95c79b6d?w=600&h=400&fit=crop',
-      readTime: 9,
-    },
-  ];
-
-  // Extract unique tags
-  const allTags = useMemo(() => {
-    const tagSet = new Set();
-    blogs.forEach(blog => blog.tags.forEach(tag => tagSet.add(tag)));
-    return Array.from(tagSet).sort();
-  }, []);
-
-  // Filter blogs based on selected tags and search query
-  const filteredBlogs = useMemo(() => {
-    return blogs.filter(blog => {
-      const matchesSearch = 
-        blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        blog.author.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesTags = selectedTags.length === 0 || 
-        selectedTags.some(tag => blog.tags.includes(tag));
-      
-      return matchesSearch && matchesTags;
-    });
-  }, [selectedTags, searchQuery]);
-
-  const toggleTag = (tag) => {
-    setSelectedTags(prev =>
-      prev.includes(tag)
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    );
-  };
+const BLOGS = [
+  {
+    id: 1,
+    author: "Mia Chen",
+    handle: "@mia_codes",
+    avatar: "MC",
+    avatarColor: "#1d9e75",
+    date: "Apr 28, 2025",
+    readTime: "5 min read",
+    title: "Understanding React Server Components",
+    summary: "Server Components fundamentally change how we think about data fetching in React. Instead of waterfalls and useEffect, you fetch at the component level — on the server.",
+    tags: ["React", "JavaScript", "Frontend"],
+    likes: 312,
+    comments: 48,
+    reposts: 91,
+    content: [
+      { type: "text", value: "React Server Components (RSCs) are one of the most significant paradigm shifts since hooks. They let you run React components entirely on the server — with zero JavaScript shipped to the client for those components." },
+      { type: "image", src: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80", alt: "Code on a monitor" },
+      { type: "text", value: "The key insight is that most UI logic doesn't need interactivity. Reading a blog post, displaying a dashboard, rendering a product page — all of this can be done on the server. RSCs let you be intentional about what's interactive." },
+      { type: "blockquote", value: "The best JavaScript is no JavaScript. Server Components let you opt into the client only where you need it." },
+      { type: "text", value: "Here's how you'd fetch data in a Server Component:" },
+      { type: "code", lang: "jsx", value: `// app/blog/page.tsx — Server Component by default
+async function BlogList() {
+  const posts = await db.posts.findMany({
+    orderBy: { createdAt: 'desc' }
+  });
 
   return (
-    <div style={{minHeight: '100vh', backgroundColor: '#000000', color: '#ffffff'}}>
-      {/* Header */}
-      <header style={{position: 'sticky', top: 0, zIndex: 40, backgroundColor: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(55, 65, 81, 0.5)'}}>
-        <div style={{maxWidth: '42rem', margin: '0 auto', padding: '1.5rem'}}>
-          <div>
-            <h1 style={{fontSize: '1.875rem', fontWeight: 'bold', color: '#ffffff', letterSpacing: '-0.02em'}}>
-              Blog <span style={{color: '#60a5fa'}}>Hub</span>
-            </h1>
-            <p style={{color: '#9ca3af', fontSize: '0.75rem', marginTop: '0.25rem'}}>Discover stories and insights</p>
+    <ul>
+      {posts.map(post => (
+        <BlogCard key={post.id} post={post} />
+      ))}
+    </ul>
+  );
+}` },
+      { type: "text", value: "No useEffect. No loading states for the initial fetch. No API routes just to proxy your database. The component IS the data layer." },
+    ]
+  },
+  {
+    id: 2,
+    author: "Dev Rajan",
+    handle: "@devrajan_io",
+    avatar: "DR",
+    avatarColor: "#534ab7",
+    date: "Apr 24, 2025",
+    readTime: "7 min read",
+    title: "CSS Container Queries Are Here — And They Change Everything",
+    summary: "Media queries react to the viewport. Container queries react to the parent element. This tiny difference unlocks truly portable, reusable components that adapt to their context.",
+    tags: ["CSS", "Frontend", "Design"],
+    likes: 544,
+    comments: 72,
+    reposts: 188,
+    content: [
+      { type: "text", value: "For years, responsive design meant viewport-based breakpoints. A card component had to know whether it was in a sidebar or a main column — and it had to know via global media queries, not local context." },
+      { type: "blockquote", value: "Container queries are the missing piece of the responsive design puzzle. They make components truly composable." },
+      { type: "image", src: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80", alt: "CSS container queries illustration" },
+      { type: "code", lang: "css", value: `.card-container {
+  container-type: inline-size;
+  container-name: card;
+}
+
+@container card (min-width: 400px) {
+  .card {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+  }
+}` },
+      { type: "text", value: "Now the card knows its own available space. Put it in a narrow sidebar? It stacks. Put it in a wide content area? It goes horizontal. Zero changes needed to the component itself." },
+    ]
+  },
+  {
+    id: 3,
+    author: "Aiko Tanaka",
+    handle: "@aiko_writes",
+    avatar: "AT",
+    avatarColor: "#993556",
+    date: "Apr 20, 2025",
+    readTime: "4 min read",
+    title: "The Art of Writing Commit Messages",
+    summary: "Your commit history is a story. Future-you (and your teammates) will read it during a hard debugging session. Write it like you care about that reader.",
+    tags: ["Git", "Productivity", "DevOps"],
+    likes: 821,
+    comments: 130,
+    reposts: 304,
+    content: [
+      { type: "text", value: "Bad commit messages are a form of technical debt. They make git blame useless, bisect sessions nightmarish, and changelogs unreadable. Good commit messages are a gift to your future self." },
+      { type: "blockquote", value: "A commit message should answer the question: if someone reads this six months from now, will they understand why this change was made?" },
+      { type: "code", lang: "bash", value: `# Bad
+git commit -m "fix bug"
+git commit -m "update stuff"
+git commit -m "wip"
+
+# Good
+git commit -m "fix: prevent race condition in auth token refresh
+
+Token refresh was being triggered multiple times simultaneously
+when multiple requests fired during a 401 response. Added a
+pending promise cache to deduplicate in-flight refresh calls.
+
+Fixes #482"` },
+      { type: "text", value: "The format I follow: a short imperative subject line (≤72 chars), a blank line, then a body explaining the *why* — not the what (the diff shows the what)." },
+      { type: "image", src: "https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=800&q=80", alt: "Terminal with git log" },
+      { type: "text", value: "Adopt Conventional Commits for even better structure. Tools like semantic-release can automate versioning and changelogs from your commit history — but only if your messages are consistent." },
+    ]
+  },
+  {
+    id: 4,
+    author: "Omar Farouk",
+    handle: "@omar_sys",
+    avatar: "OF",
+    avatarColor: "#185fa5",
+    date: "Apr 15, 2025",
+    readTime: "9 min read",
+    title: "Designing for Zero Trust: A Practical Guide",
+    summary: "\"Never trust, always verify\" sounds paranoid until you've worked an incident. Zero trust isn't a product — it's a mindset that reshapes how you design every service boundary.",
+    tags: ["Security", "Architecture", "DevOps"],
+    likes: 677,
+    comments: 89,
+    reposts: 241,
+    content: [
+      { type: "text", value: "Traditional perimeter security assumes everything inside the network is safe. Zero trust flips this: treat every request as if it comes from the open internet, regardless of where it originates." },
+      { type: "image", src: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80", alt: "Security architecture diagram" },
+      { type: "blockquote", value: "The perimeter is dead. Your attackers are already inside. Zero trust is how you design for that reality." },
+      { type: "text", value: "The three pillars of Zero Trust in practice:" },
+      { type: "code", lang: "yaml", value: `# Policy as code — every access decision is explicit
+policies:
+  - name: payments-service-access
+    principal: order-service
+    resource: payments.process
+    conditions:
+      - mTLS verified
+      - JWT claims: role=order-processor
+      - Time: business hours UTC
+    effect: allow` },
+      { type: "text", value: "mTLS between services. Short-lived tokens. Explicit allow-lists. Continuous verification. These aren't optional extras — they're the baseline." },
+    ]
+  },
+  {
+    id: 5,
+    author: "Priya Nair",
+    handle: "@priya_ux",
+    avatar: "PN",
+    avatarColor: "#ba7517",
+    date: "Apr 10, 2025",
+    readTime: "6 min read",
+    title: "Motion Design Principles for UI Engineers",
+    summary: "Animation isn't decoration — it's communication. When things move right, users understand your interface intuitively. When they move wrong, everything feels broken.",
+    tags: ["Design", "CSS", "UX"],
+    likes: 493,
+    comments: 61,
+    reposts: 167,
+    content: [
+      { type: "text", value: "The purpose of UI animation is to convey meaning — to show relationships, signal state changes, and guide attention. Every animation should earn its place by doing one of these jobs." },
+      { type: "blockquote", value: "An animation that doesn't communicate something is just visual noise. And visual noise costs users cognitive load." },
+      { type: "image", src: "https://images.unsplash.com/photo-1561736778-92e52a7769ef?w=800&q=80", alt: "Motion design wireframes" },
+      { type: "text", value: "The four principles I design by:" },
+      { type: "code", lang: "css", value: `/* 1. Use easing that feels physical */
+.card {
+  transition: transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 2. Keep durations perceptible but brief */
+.fade-in {
+  animation: fadeIn 180ms ease-out forwards;
+}
+
+/* 3. Choreograph — stagger related elements */
+.item:nth-child(1) { animation-delay: 0ms; }
+.item:nth-child(2) { animation-delay: 60ms; }
+.item:nth-child(3) { animation-delay: 120ms; }
+
+/* 4. Always respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; }
+}` },
+      { type: "text", value: "That last one isn't optional. Vestibular disorders affect 35% of adults over 40. Respecting motion preferences is both ethical and legally required in many jurisdictions." },
+    ]
+  },
+  {
+    id: 6,
+    author: "Luca Ferretti",
+    handle: "@luca_db",
+    avatar: "LF",
+    avatarColor: "#3b6d11",
+    date: "Apr 4, 2025",
+    readTime: "8 min read",
+    title: "Indexing Strategies That Actually Matter",
+    summary: "Everyone knows indexes speed up queries. Fewer people understand why certain indexes get ignored, how covering indexes eliminate table scans, or when not to index at all.",
+    tags: ["Database", "PostgreSQL", "Backend"],
+    likes: 389,
+    comments: 55,
+    reposts: 143,
+    content: [
+      { type: "text", value: "An index is a data structure that PostgreSQL maintains alongside your table, sorted in a way that makes lookups faster. But that maintenance has a write cost — every INSERT, UPDATE, DELETE must update every relevant index." },
+      { type: "blockquote", value: "Indexes are not free. Over-indexing a write-heavy table can be worse than no indexes at all." },
+      { type: "code", lang: "sql", value: `-- EXPLAIN ANALYZE is your best friend
+EXPLAIN ANALYZE
+SELECT u.*, p.title
+FROM users u
+JOIN posts p ON p.user_id = u.id
+WHERE u.active = true
+  AND p.published_at > NOW() - INTERVAL '30 days';
+
+-- A covering index eliminates the table heap fetch entirely
+CREATE INDEX idx_posts_covering
+ON posts (user_id, published_at)
+INCLUDE (title, slug);` },
+      { type: "image", src: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&q=80", alt: "Database schema diagram" },
+      { type: "text", value: "The INCLUDE clause in PostgreSQL 11+ is underused. It adds columns to the index leaf pages without making them part of the sort key — perfect for columns you SELECT but don't filter on." },
+    ]
+  },
+];
+
+const ALL_TAGS = [...new Set(BLOGS.flatMap(b => b.tags))].sort();
+
+function formatNumber(n) {
+  if (n >= 1000) return (n / 1000).toFixed(1) + "k";
+  return n.toString();
+}
+
+function BlogCard({ blog, onClick }) {
+  return (
+    <article
+      onClick={() => onClick(blog)}
+      style={{
+        background: "var(--bg-card)",
+        borderBottom: "1px solid var(--border-color)",
+        padding: "16px",
+        cursor: "pointer",
+        transition: "background 0.15s",
+      }}
+      onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+      onMouseLeave={e => e.currentTarget.style.background = "var(--bg-card)"}
+    >
+      <div style={{ display: "flex", gap: "12px" }}>
+        <div style={{ flexShrink: 0 }}>
+          <div style={{
+            width: 42, height: 42, borderRadius: "50%",
+            background: blog.avatarColor,
+            color: "#fff",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 700, fontSize: 14,
+            letterSpacing: "0.5px"
+          }}>
+            {blog.avatar}
           </div>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main style={{maxWidth: '42rem', margin: '0 auto', padding: '2rem 1.5rem'}}>
-        {/* Search Section */}
-        <div style={{marginBottom: '1.5rem'}}>
-          <div style={{position: 'relative'}}>
-            <Search style={{position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '1.25rem', height: '1.25rem'}} />
-            <input
-              type="text"
-              placeholder="Search blogs..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{width: '100%', paddingLeft: '3rem', paddingRight: '1rem', paddingTop: '0.75rem', paddingBottom: '0.75rem', borderRadius: '9999px', border: '1px solid #374151', backgroundColor: '#111827', color: '#ffffff'}}
-            />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginBottom: 2 }}>
+            <span style={{ fontWeight: 700, fontSize: 15, color: "var(--text-primary)" }}>
+              {blog.author}
+            </span>
+            <span style={{ color: "var(--text-secondary)", fontSize: 14 }}>
+              {blog.handle}
+            </span>
+            <span style={{ color: "var(--text-secondary)", fontSize: 14 }}>·</span>
+            <span style={{ color: "var(--text-secondary)", fontSize: 14 }}>
+              {blog.date}
+            </span>
+            <span style={{ color: "var(--text-secondary)", fontSize: 14 }}>·</span>
+            <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>
+              {blog.readTime}
+            </span>
           </div>
-        </div>
 
-        {/* Tags Filter - Concise */}
-        <div style={{marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem'}}>
-          {allTags.map(tag => (
-            <button
-              key={tag}
-              onClick={() => toggleTag(tag)}
-              style={{padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '500', transition: 'all 0.3s', backgroundColor: selectedTags.includes(tag) ? '#2563eb' : '#111827', color: selectedTags.includes(tag) ? '#ffffff' : '#a1a5b0', border: selectedTags.includes(tag) ? 'none' : '1px solid #374151', cursor: 'pointer'}}
-            >
-              {tag}
-            </button>
-          ))}
-          {selectedTags.length > 0 && (
-            <button
-              onClick={() => setSelectedTags([])}
-              style={{padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '500', backgroundColor: '#111827', color: '#6b7280', border: '1px solid #374151', cursor: 'pointer'}}
-            >
-              Clear
-            </button>
-          )}
-        </div>
+          <h2 style={{
+            margin: "4px 0 6px",
+            fontSize: 16,
+            fontWeight: 700,
+            color: "var(--text-primary)",
+            lineHeight: 1.35,
+          }}>
+            {blog.title}
+          </h2>
 
-        {/* Blog List */}
-        {filteredBlogs.length > 0 ? (
-          <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-            {filteredBlogs.map((blog) => (
-              <article
-                key={blog.id}
-                onClick={() => setSelectedBlog(blog)}
-                style={{backgroundColor: '#111827', borderRadius: '0.75rem', border: '1px solid #374151', overflow: 'hidden', cursor: 'pointer', padding: '1rem', display: 'flex', gap: '1rem', transition: 'all 0.3s'}}
-                onMouseEnter={(e) => {e.currentTarget.style.backgroundColor = '#1f2937'; e.currentTarget.style.borderColor = '#2563eb'}}
-                onMouseLeave={(e) => {e.currentTarget.style.backgroundColor = '#111827'; e.currentTarget.style.borderColor = '#374151'}}
-              >
-                {/* Image */}
-                <div style={{width: '8rem', height: '8rem', flexShrink: 0, borderRadius: '0.5rem', overflow: 'hidden', backgroundColor: '#1f2937'}}>
-                  <img
-                    src={blog.image}
-                    alt={blog.title}
-                    style={{width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s'}}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                  />
-                </div>
+          <p style={{
+            margin: "0 0 10px",
+            fontSize: 14.5,
+            color: "var(--text-secondary)",
+            lineHeight: 1.55,
+          }}>
+            {blog.summary}
+          </p>
 
-                {/* Content */}
-                <div style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
-                  <div>
-                    <h3 style={{fontSize: '1.125rem', fontWeight: 'bold', color: '#ffffff', marginBottom: '0.25rem'}}>
-                      {blog.title}
-                    </h3>
-                    <p style={{color: '#9ca3af', fontSize: '0.875rem', marginBottom: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                      {blog.excerpt}
-                    </p>
-
-                    {/* Tags */}
-                    <div style={{display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginBottom: '0.75rem'}}>
-                      {blog.tags.map(tag => (
-                        <span
-                          key={tag}
-                          style={{padding: '0.125rem 0.5rem', backgroundColor: '#1f2937', color: '#a1a5b0', borderRadius: '9999px', fontSize: '0.75rem', textTransform: 'lowercase'}}
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: '#6b7280'}}>
-                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                      <span>{blog.author}</span>
-                      <span>•</span>
-                      <span>{blog.readTime} min</span>
-                    </div>
-                    <button style={{color: '#60a5fa', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '0.25rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer'}}>
-                      Read <ArrowRight style={{width: '0.75rem', height: '0.75rem'}} />
-                    </button>
-                  </div>
-                </div>
-              </article>
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: 12 }}>
+            {blog.tags.map(tag => (
+              <span key={tag} style={{
+                fontSize: 12,
+                padding: "3px 10px",
+                borderRadius: 999,
+                background: "var(--tag-bg)",
+                color: "var(--tag-text)",
+                fontWeight: 500,
+              }}>{tag}</span>
             ))}
           </div>
-        ) : (
-          <div style={{textAlign: 'center', padding: '3rem 0'}}>
-            <div style={{display: 'inline-block', marginBottom: '1rem'}}>
-              <Search style={{width: '2rem', height: '2rem', color: '#4b5563'}} />
-            </div>
-            <h3 style={{fontSize: '1.125rem', fontWeight: 'bold', color: '#ffffff', marginBottom: '0.5rem'}}>No blogs found</h3>
-            <p style={{color: '#6b7280', fontSize: '0.875rem'}}>Try adjusting your search or filters</p>
-          </div>
-        )}
 
-        {/* Results Count */}
-        {filteredBlogs.length > 0 && (
-          <div style={{marginTop: '1.5rem', textAlign: 'center', fontSize: '0.75rem', color: '#6b7280'}}>
-            Showing {filteredBlogs.length} of {blogs.length} blog{blogs.length !== 1 ? 's' : ''}
-          </div>
-        )}
-      </main>
-
-      {/* Blog Detail Modal */}
-      {selectedBlog && (
-        <div
-          style={{position: 'fixed', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'}}
-          onClick={() => setSelectedBlog(null)}
-        >
-          <div
-            style={{backgroundColor: '#111827', borderRadius: '1rem', border: '1px solid #374151', maxWidth: '42rem', width: '100%', maxHeight: '90vh', overflowY: 'auto'}}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div style={{position: 'sticky', top: 0, backgroundColor: '#111827', borderBottom: '1px solid #374151', padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-              <h2 style={{fontSize: '1.25rem', fontWeight: 'bold', color: '#ffffff', flex: 1, paddingRight: '1rem'}}>{selectedBlog.title}</h2>
-              <button
-                onClick={() => setSelectedBlog(null)}
-                style={{color: '#9ca3af', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.5rem'}}
-              >
-                <X style={{width: '1.5rem', height: '1.5rem'}} />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div style={{padding: '1.5rem'}}>
-              {/* Featured Image */}
-              <img
-                src={selectedBlog.image}
-                alt={selectedBlog.title}
-                style={{width: '100%', height: '20rem', objectFit: 'cover', borderRadius: '0.5rem', marginBottom: '1.5rem'}}
-              />
-
-              {/* Meta Information */}
-              <div style={{display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.875rem', color: '#9ca3af', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #374151'}}>
-                <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                  <Calendar style={{width: '1rem', height: '1rem'}} />
-                  <span>
-                    {new Date(selectedBlog.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </span>
-                </div>
-                <span>•</span>
-                <span>{selectedBlog.readTime} min read</span>
-                <span>•</span>
-                <span style={{fontWeight: '500', color: '#ffffff'}}>{selectedBlog.author}</span>
-              </div>
-
-              {/* Tags */}
-              <div style={{display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem'}}>
-                {selectedBlog.tags.map(tag => (
-                  <span
-                    key={tag}
-                    style={{padding: '0.5rem 0.75rem', backgroundColor: '#1f2937', color: '#a1a5b0', borderRadius: '9999px', fontSize: '0.75rem', textTransform: 'lowercase'}}
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Blog Content */}
-              <div style={{color: '#a1a5b0', lineHeight: '1.75rem'}}>
-                {selectedBlog.content.split('\n\n').map((paragraph, idx) => {
-                  if (paragraph.startsWith('•')) {
-                    return (
-                      <div key={idx} style={{marginBottom: '1rem'}}>
-                        {paragraph.split('\n').map((line, lineIdx) => (
-                          <div key={lineIdx} style={{display: 'flex', gap: '0.75rem', marginBottom: '0.5rem', color: '#a1a5b0'}}>
-                            <span style={{color: '#60a5fa', flexShrink: 0, marginTop: '0.25rem'}}>•</span>
-                            <span>{line.replace('• ', '')}</span>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  }
-                  return (
-                    <p key={idx} style={{marginBottom: '1rem', lineHeight: '1.75rem', color: '#a1a5b0'}}>
-                      {paragraph}
-                    </p>
-                  );
-                })}
-              </div>
-
-              {/* Close Button */}
-              <div style={{marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #374151'}}>
-                <button
-                  onClick={() => setSelectedBlog(null)}
-                  style={{width: '100%', padding: '0.5rem 1rem', backgroundColor: '#2563eb', color: '#ffffff', fontWeight: '500', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', transition: 'background-color 0.3s'}}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
+          <div style={{ display: "flex", gap: "20px" }}>
+            {[
+              { icon: "💬", val: formatNumber(blog.comments) },
+              { icon: "🔁", val: formatNumber(blog.reposts) },
+              { icon: "♥", val: formatNumber(blog.likes) },
+            ].map(({ icon, val }) => (
+              <span key={icon} style={{
+                display: "flex", alignItems: "center", gap: 5,
+                color: "var(--text-secondary)", fontSize: 13,
+              }}>
+                <span style={{ fontSize: 14 }}>{icon}</span>
+                {val}
+              </span>
+            ))}
           </div>
         </div>
-      )}
+      </div>
+    </article>
+  );
+}
+
+function BlogDetail({ blog, onBack }) {
+  function renderBlock(block, i) {
+    switch (block.type) {
+      case "text":
+        return (
+          <p key={i} style={{
+            fontSize: 16, lineHeight: 1.75,
+            color: "var(--text-primary)",
+            margin: "0 0 20px",
+          }}>
+            {block.value}
+          </p>
+        );
+      case "image":
+        return (
+          <figure key={i} style={{ margin: "24px 0", padding: 0 }}>
+            <img
+              src={block.src}
+              alt={block.alt}
+              style={{
+                width: "100%", borderRadius: 16,
+                display: "block",
+                objectFit: "cover",
+                maxHeight: 360,
+              }}
+            />
+          </figure>
+        );
+      case "code":
+        return (
+          <div key={i} style={{ margin: "20px 0" }}>
+            {block.lang && (
+              <div style={{
+                background: "#1a1f2e",
+                borderRadius: "12px 12px 0 0",
+                padding: "8px 16px",
+                display: "flex", alignItems: "center", gap: 8
+              }}>
+                <span style={{
+                  fontSize: 11,
+                  color: "#8b96b0", letterSpacing: "0.5px",
+                  textTransform: "uppercase"
+                }}>{block.lang}</span>
+                <div style={{ display: "flex", gap: 5, marginLeft: "auto" }}>
+                  {["#ff5f56", "#ffbd2e", "#27c93f"].map(c => (
+                    <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />
+                  ))}
+                </div>
+              </div>
+            )}
+            <pre style={{
+              background: "#0d1117",
+              borderRadius: block.lang ? "0 0 12px 12px" : 12,
+              padding: "16px 20px",
+              margin: 0,
+              overflowX: "auto",
+              fontSize: 13.5,
+              lineHeight: 1.7,
+              color: "#c9d1d9",
+            }}>
+              <code>{block.value}</code>
+            </pre>
+          </div>
+        );
+      case "blockquote":
+        return (
+          <blockquote key={i} style={{
+            margin: "24px 0",
+            padding: "12px 20px",
+            borderLeft: "4px solid var(--accent)",
+            background: "var(--blockquote-bg)",
+            borderRadius: "0 10px 10px 0",
+          }}>
+            <p style={{
+              margin: 0,
+              fontSize: 16.5,
+              fontStyle: "italic",
+              color: "var(--blockquote-text)",
+              lineHeight: 1.65,
+            }}>
+              "{block.value}"
+            </p>
+          </blockquote>
+        );
+      default:
+        return null;
+    }
+  }
+
+  return (
+    <div style={{ maxWidth: 800, margin: "0 auto" }}>
+      <button
+        onClick={onBack}
+        style={{
+          display: "flex", alignItems: "center", gap: 8,
+          background: "none", border: "none",
+          color: "var(--accent)",
+          fontSize: 14, fontWeight: 600,
+          cursor: "pointer", padding: "16px 16px",
+          letterSpacing: "0.2px",
+        }}
+      >
+        ← Back
+      </button>
+
+      <div style={{
+        borderTop: "1px solid var(--border-color)",
+        borderBottom: "1px solid var(--border-color)",
+        padding: "20px 16px 0",
+      }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 16 }}>
+          <div style={{
+            width: 48, height: 48, borderRadius: "50%",
+            background: blog.avatarColor,
+            color: "#fff",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 700, fontSize: 15,
+            flexShrink: 0,
+          }}>
+            {blog.avatar}
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--text-primary)" }}>
+              {blog.author}
+            </div>
+            <div style={{ color: "var(--text-secondary)", fontSize: 14 }}>
+              {blog.handle}
+            </div>
+          </div>
+          <div style={{
+            marginLeft: "auto",
+            display: "flex", alignItems: "center", gap: 6,
+            color: "var(--text-secondary)",
+            fontSize: 13,
+          }}>
+            <span>{blog.date}</span>
+            <span>·</span>
+            <span>{blog.readTime}</span>
+          </div>
+        </div>
+
+        <h1 style={{
+          margin: "0 0 10px",
+          fontSize: 24,
+          fontWeight: 800,
+          color: "var(--text-primary)",
+          lineHeight: 1.3,
+        }}>
+          {blog.title}
+        </h1>
+
+        <p style={{
+          margin: "0 0 16px",
+          fontSize: 16,
+          color: "var(--text-secondary)",
+          lineHeight: 1.6,
+        }}>
+          {blog.summary}
+        </p>
+
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+          {blog.tags.map(tag => (
+            <span key={tag} style={{
+              fontSize: 12.5, padding: "4px 12px",
+              borderRadius: 999, background: "var(--tag-bg)",
+              color: "var(--tag-text)", fontWeight: 500,
+            }}>{tag}</span>
+          ))}
+        </div>
+
+        <div style={{
+          display: "flex", gap: "28px",
+          borderTop: "1px solid var(--border-color)",
+          padding: "12px 0",
+          marginBottom: 20,
+        }}>
+          {[
+            { icon: "💬", val: blog.comments, label: "Comments" },
+            { icon: "🔁", val: blog.reposts, label: "Reposts" },
+            { icon: "♥", val: blog.likes, label: "Likes" },
+          ].map(({ icon, val, label }) => (
+            <span key={label} style={{
+              display: "flex", alignItems: "center", gap: 6,
+              fontSize: 14, color: "var(--text-secondary)",
+            }}>
+              <span style={{ fontSize: 16 }}>{icon}</span>
+              <strong style={{ color: "var(--text-primary)", fontWeight: 700 }}>{formatNumber(val)}</strong>
+              <span>{label}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: "24px 16px 48px" }}>
+        {blog.content.map((block, i) => renderBlock(block, i))}
+      </div>
     </div>
   );
 }
+
+export default function App() {
+  const [query, setQuery] = useState("");
+  const [activeTag, setActiveTag] = useState(null);
+  const [selectedBlog, setSelectedBlog] = useState(null);
+  const [darkMode, setDarkMode] = useState(true);
+
+  const theme = {
+    "--bg-main": darkMode ? "#000" : "#fff",
+    "--bg-card": darkMode ? "#000" : "#fff",
+    "--bg-hover": darkMode ? "#16181c" : "#f7f9f9",
+    "--text-primary": darkMode ? "#e7e9ea" : "#0f1419",
+    "--text-secondary": darkMode ? "#71767b" : "#536471",
+    "--border-color": darkMode ? "#2f3336" : "#e7e7e8",
+    "--tag-bg": darkMode ? "rgba(26, 140, 216, 0.2)" : "#e8f5fe",
+    "--tag-text": "#1a8cd8",
+    "--blockquote-bg": darkMode ? "#0f1419" : "#e8f5fe",
+    "--blockquote-text": darkMode ? "#1a8cd8" : "#0f6491",
+    "--accent": "#1a8cd8",
+    "--search-bg": darkMode ? "#202327" : "#eff3f4",
+    "--header-bg": darkMode ? "rgba(0,0,0,0.8)" : "rgba(255,255,255,0.88)",
+  };
+
+  const filtered = useMemo(() => {
+    return BLOGS.filter(b => {
+      const matchTag = !activeTag || b.tags.includes(activeTag);
+      const q = query.toLowerCase();
+      const matchQuery = !q ||
+        b.title.toLowerCase().includes(q) ||
+        b.summary.toLowerCase().includes(q) ||
+        b.author.toLowerCase().includes(q) ||
+        b.tags.some(t => t.toLowerCase().includes(q));
+      return matchTag && matchQuery;
+    });
+  }, [query, activeTag]);
+
+  return (
+    <div style={{
+      ...theme,
+      minHeight: "100vh",
+      background: "var(--bg-main)",
+      color: "var(--text-primary)",
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    }}>
+      <div style={{
+        maxWidth: 800,
+        margin: "0 auto",
+      }}>
+        {selectedBlog ? (
+          <BlogDetail blog={selectedBlog} onBack={() => setSelectedBlog(null)} />
+        ) : (
+          <>
+            <div style={{
+              position: "sticky", top: 0,
+              background: "var(--header-bg)",
+              backdropFilter: "blur(12px)",
+              zIndex: 100,
+              borderBottom: "1px solid var(--border-color)",
+              padding: "12px 16px",
+            }}>
+              <div style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                marginBottom: 12,
+              }}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="var(--accent)">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.736-8.847L1.254 2.25H8.08l4.266 5.644L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+                  </svg>
+                  <span style={{ fontSize: 18, fontWeight: 800, marginLeft: 8 }}>Blog Archive</span>
+                </div>
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  style={{
+                    background: "var(--search-bg)", border: "none",
+                    borderRadius: "50%", width: 36, height: 36,
+                    cursor: "pointer", fontSize: 18,
+                  }}
+                >
+                  {darkMode ? "☀️" : "🌙"}
+                </button>
+              </div>
+
+              <div style={{ position: "relative", marginBottom: 10 }}>
+                <input
+                  type="text"
+                  placeholder="Search posts..."
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px 16px",
+                    borderRadius: 999,
+                    border: "1px solid var(--border-color)",
+                    background: "var(--search-bg)",
+                    fontSize: 15,
+                    color: "var(--text-primary)",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                <button
+                  onClick={() => setActiveTag(null)}
+                  style={{
+                    padding: "5px 14px",
+                    borderRadius: 999,
+                    border: "1px solid",
+                    borderColor: !activeTag ? "var(--accent)" : "var(--border-color)",
+                    background: !activeTag ? "var(--accent)" : "transparent",
+                    color: !activeTag ? "#fff" : "var(--text-secondary)",
+                    fontSize: 13, fontWeight: 500, cursor: "pointer",
+                  }}
+                >
+                  All
+                </button>
+                {ALL_TAGS.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => setActiveTag(tag === activeTag ? null : tag)}
+                    style={{
+                      padding: "5px 14px",
+                      borderRadius: 999,
+                      border: "1px solid",
+                      borderColor: activeTag === tag ? "var(--accent)" : "var(--border-color)",
+                      background: activeTag === tag ? "var(--tag-bg)" : "transparent",
+                      color: activeTag === tag ? "var(--accent)" : "var(--text-secondary)",
+                      fontSize: 13, fontWeight: 500, cursor: "pointer",
+                    }}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              {filtered.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "60px 20px" }}>
+                  <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
+                  <p style={{ fontSize: 18, fontWeight: 700 }}>No posts found</p>
+                </div>
+              ) : (
+                filtered.map(blog => (
+                  <BlogCard key={blog.id} blog={blog} onClick={setSelectedBlog} />
+                ))
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
